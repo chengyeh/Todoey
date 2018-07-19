@@ -11,19 +11,21 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     
     let defaults = UserDefaults.standard
-    var itemArray = ["Buy books", "Go see the doctor", "Apply for jobs"]
+    var itemArray = [Item("Buy books"), Item("Apply for jobs"), Item("Save the world!")]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let toDoList = defaults.array(forKey: "ToDoListArray") as? [String] {
-            itemArray = toDoList
-        }
+
+//        if let toDoList = defaults.array(forKey: "ToDoListArray") as? [Item] {
+//            itemArray = toDoList
+//        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let currentItem = itemArray[indexPath.row]
+        cell.textLabel?.text = currentItem.getTitle()
+        cell.accessoryType = currentItem.isDone() ? .checkmark : .none
 
         return cell
     }
@@ -35,7 +37,8 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let currentCell = tableView.cellForRow(at: indexPath)
 
-
+        itemArray[indexPath.row].toggleDone()
+        
         if currentCell?.accessoryType == .checkmark {
             currentCell?.accessoryType = .none
         } else {
@@ -49,7 +52,7 @@ class ToDoListViewController: UITableViewController {
         var alertTextField = UITextField()
         let alert = UIAlertController(title: "Add New To-do Item", message: "", preferredStyle: .alert)
         let addItem = UIAlertAction(title: "Add item", style: .default) { (action) in
-            self.itemArray.append(alertTextField.text!)
+            self.itemArray.append(Item(alertTextField.text!))
             self.defaults.set(self.itemArray, forKey: "ToDoListArray")
             self.tableView.reloadData()
         }
